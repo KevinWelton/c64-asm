@@ -1,0 +1,54 @@
+BASE 10 (16 bit dividend)
+--------------------------
+      23542
+10 | 235423
+     20
+      35423
+      30
+       5423
+       5023
+        423
+        40
+         23
+         20
+          3
+
+Result = 23542 remainder 3
+
+--------------------------
+
+BASE 2 (16 bit dividend) (Same as above, but in binary) (Remember in boarrowing in binary you get 10, not 1 when you borrow.)
+--------------------------
+       0000 0000 0000 0000 0101 1011 1111 0110
+1010 | 0000 0000 0000 0011 1001 0111 1001 1111
+                        10 10
+                         1 000
+                         1 0001
+                           1010                 // Borrowing, pay attention!
+                            111 0 
+                            101 0
+                             10 01
+                             10 011
+                              1 010             // Borrowing, pay attention!
+                              1 0011
+                                1010            // Borrowing, pay attention!
+                                1001 1
+                                 101 0          // Borrowing, pay attention!
+                                 100 10
+                                  10 10         // Borrowing, pay attention!
+                                  10 000
+                                   1 010        // Borrowing, pay attention!
+                                     1101
+                                     1010       // Borrowing, pay attention!
+                                       11 1
+                                       11 11
+                                       10 10
+                                        1 011
+                                        1 010
+                                            11
+
+Result = 0000 0000 0000 0000 0101 1011 1111 0110 Remainder 11
+Result = 0x05BF6 remainder 0x03
+
+--------------------------
+So we can run long division the same way in binary. How do we convert this tto asm?
