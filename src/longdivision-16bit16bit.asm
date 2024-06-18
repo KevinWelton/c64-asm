@@ -51,8 +51,8 @@ div_iter
     rol NQ+1
     rol R      ; Put carry bit from previous rol as bit 0 (see http://www.6502.org/users/obelisk/6502/reference.html#ROL)
     rol R+1
-    lda R      ; Subtract low byte after setting carry bit
-    sec
+    sec        ; Subtract low byte after setting carry bit
+    lda R
     sbc D
     tax        ; Save result of low byte in case subtraction succeeds for high byte
     lda R + 1  ; Subtract high byte
