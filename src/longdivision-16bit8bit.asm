@@ -17,6 +17,10 @@ jmp main
     !set NB = 16 ; Number of bits in the numerator / dividend
 
 main
+    ; Clear the screen using a KERNAL (yes, with an "a") routine
+    lda #$93
+    jsr $ffd2
+
     ; Push our numerator.
     ; It's base 10 value is 20000 (0x204e in little endian)
     lda #$4e

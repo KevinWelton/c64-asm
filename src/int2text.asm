@@ -16,6 +16,10 @@ jmp main
     !set NB = 16 ; Number of bits in the numerator / dividend
 
 main
+    ; Clear the screen using a KERNAL (yes, with an "a") routine
+    lda #$93
+    jsr $ffd2
+
     ; numerator for this test is 1729 (0x06c1, 0xc106 in little endian)
     lda #$06
     pha

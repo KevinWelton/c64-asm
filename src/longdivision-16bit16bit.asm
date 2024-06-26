@@ -15,7 +15,14 @@ jmp main
     
     !set NB = 16 ; Number of bits in the numerator / dividend
 
+    !set RADIX = 10 ; Convert to base10 when printing
+    !set OUTPUT_BASE = $9000 ; Store our converted string here
+
 main
+    ; Clear the screen using a KERNAL (yes, with an "a") routine
+    lda #$93
+    jsr $ffd2
+
     ; Push our numerator.
     ; It's base 10 value is 20000 (0x204e in little endian)
     lda #$4e
@@ -66,6 +73,55 @@ div_continue
     iny        ; Increment y and see if we need to rotate any more bits. If not, we're done.
     cpy #NB
     bne div_iter
+
+; Display character to screen
+int2text
+    ldx #0     ; X will index our character location in memory
+
+int2text_newdigit
+    ldy #0     ; Y will index our number of iterations
+    lda #0     ; Set remainder to 0
+
+int2text_iter
+    asl NQ      ; Rotate first bit of the numerator. Do the low byte first. It will affect carry bit which will let us easily roll the high byte.
+    rol NQ+1
+    rol R      ; Rotate the high-order bit into the remainder
+    lda R
+    sec        ; Set carry bit so we know if subtraction was successful without borrowing from it
+    sbc RADIX  ; Subtract denominator from value in accumulator. Roll result carry bit into quotient.
+    bcc int2text_continue ; branch if subtract failed
+    sta R
+    inc NQ
+int2text_continue
+    iny        ; Increment y and see if we need to rotate any more bits. If not, we're done.
+    cpy #NB
+    bne int2text_iter
+
+store_digit
+    lda R
+    sta OUTPUT_BASE, x ; Write the remainder into the first memory slot
+    inx
+    lda NQ
+    ora NQ+1
+    beq print         ; Was Q == 0? We're done. Go to printing our result.
+    jmp int2text_newdigit
+
+    ; Print the results of our division
+print
+    ldy #0              ; Use Y to index screen memory
+    clc                 ; Clear carry for the printing loop so we don't unintentionally get 1 added to any of our values
+
+printchar
+    dex                ; We predecrement since we incremented after writing the value
+    lda OUTPUT_BASE, x ; Load the most significant digit (values were written in reverse order)
+    adc #"0"           ; Make sure we are printing a character, not a number
+    sta $400, y        ; Write the value to screen memory (PAL)
+    lda #1             ; Make the text color white
+    sta $d800, y
+    txa                ; Transfer X to A so we get the zero bit set if we're done
+    beq done           ; If X was 0 this iteration, we're done.
+    iny
+    jmp printchar
 
 done
     rts
