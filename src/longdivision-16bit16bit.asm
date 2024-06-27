@@ -9,10 +9,10 @@ jmp main
 
     ; Use zero page addressing when available since it's faster
     ;   All values will be store LITTLE ENDIAN.
-    !set NQ = $FB ; 2 bytes. On c64, $FB/$FC aren't used (little endian.)
+    !set NQ = $FB ; 2 bytes. On c64, $FB/$FC aren't used
     !set D = $26 ; 2 bytes. On c64, $26/$27 are part of the floating point working memory for BASIC. Safe to use.
     !set R = $28 ; 2 bytes. On c64, $28/$29 are part of the floating point working memory for BASIC. Safe to use.
-    
+    !set NQCPY = $FD ; 2 bytes. Stores a copy of the remainder. On c64, $FD/$FC aren't used.
     !set NB = 16 ; Number of bits in the numerator / dividend
 
     !set RADIX = 10 ; Convert to base10 when printing
@@ -36,7 +36,6 @@ main
     pha
     lda #$98
     pha
-    jmp div
 
 div
     pla        ; Pull denominator from stack and store it in memory (little endian)
@@ -74,13 +73,25 @@ div_continue
     cpy #NB
     bne div_iter
 
-; Display character to screen
-int2text
+prepare_for_print
+    lda NQ      ; We will reuse R for more division in int2text. So store the remainder of the actual division op so we can print it out later.
+    sta NQCPY
+    lda NQ+1
+    sta NQCPY+1
+    lda R       ; Load R into NQ since we will figure it's characters out first.
+    sta NQ
+    lda R+1
+    sta NQ+1
+
+    lda #0     ; Reuse D to store whether we have printed all parts of the result
+    sta D
+
     ldx #0     ; X will index our character location in memory
 
 int2text_newdigit
     ldy #0     ; Y will index our number of iterations
     lda #0     ; Set remainder to 0
+    sta R
 
 int2text_iter
     asl NQ      ; Rotate first bit of the numerator. Do the low byte first. It will affect carry bit which will let us easily roll the high byte.
@@ -88,7 +99,7 @@ int2text_iter
     rol R      ; Rotate the high-order bit into the remainder
     lda R
     sec        ; Set carry bit so we know if subtraction was successful without borrowing from it
-    sbc RADIX  ; Subtract denominator from value in accumulator. Roll result carry bit into quotient.
+    sbc #RADIX  ; Subtract denominator from value in accumulator. Roll result carry bit into quotient.
     bcc int2text_continue ; branch if subtract failed
     sta R
     inc NQ
@@ -98,12 +109,28 @@ int2text_continue
     bne int2text_iter
 
 store_digit
+    clc
     lda R
-    sta OUTPUT_BASE, x ; Write the remainder into the first memory slot
+    adc #"0"
+    sta OUTPUT_BASE, x    ; Write the remainder into the first memory slot
     inx
     lda NQ
     ora NQ+1
-    beq print         ; Was Q == 0? We're done. Go to printing our result.
+    beq store_quotient    ; Was Q == 0? We're done. Go to printing our result.
+    jmp int2text_newdigit
+store_quotient
+    lda D                 ; Set D to 1 to show that we stored the quotient as well as the remainder so we don't do this again
+    bne print
+    inc D
+    lda NQCPY
+    sta NQ
+    lda NQCPY+1
+    sta NQ+1
+    lda #1
+    sta D
+    lda #$12              ; Put "R" in buffer to specify that what follows it is the remainder
+    sta OUTPUT_BASE, x
+    inx
     jmp int2text_newdigit
 
     ; Print the results of our division
@@ -114,7 +141,6 @@ print
 printchar
     dex                ; We predecrement since we incremented after writing the value
     lda OUTPUT_BASE, x ; Load the most significant digit (values were written in reverse order)
-    adc #"0"           ; Make sure we are printing a character, not a number
     sta $400, y        ; Write the value to screen memory (PAL)
     lda #1             ; Make the text color white
     sta $d800, y
