@@ -5,7 +5,7 @@
             "type": "vice",
             "request": "launch",
             "name": "Launch Vice",
-            "preLaunchTask": "${defaultBuildTask}"
+            "preLaunchTask": "${defaultBuildTask}",
         },
         {
             "type": "vice",
