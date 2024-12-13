@@ -4,18 +4,17 @@
 ; This version of division supports 16 bit numerators *and* 16 bit denominators
 
 *=$0801
-!byte $0c,$08,$b5,$07,$9e,$20,$32,$30,$36,$32,$00,$00,$00
-jmp main
 
-    ; Use zero page addressing when available since it's faster
-    ;   All values will be store LITTLE ENDIAN.
-    !set QUOTIENT = $61      ; 2 bytes. On c64, $61/$62 are used for BASIC floating point (little endian.)
-    !set NUMERATOR = $FB     ; 2 bytes. On c64, $FB/$FC aren't used (little endian.)
-    !set DIVISOR = $26       ; 2 bytes. On c64, $26/$27 are part of the floating point working memory for BASIC. Safe to use.
-    !set REMAINDER = $28     ; 2 bytes. On c64, $28/$29 are part of the floating point working memory for BASIC. Safe to use.
-    !set PHASE = $FD         ; On c64, $FD isn't used
-    !set OUTPUT_BASE = $9000 ; Our output buffer for the final print operation
-    !set BITWIDTH = 16       ; Number of bits in the numerator / dividend
+!byte $0c,$08,$b5,$07,$9e,$20,$32,$30,$36,$32,$00,$00,$00
+
+; Use zero page addressing when available since it's faster
+!set QUOTIENT = $61      ; 2 bytes. On c64, $61/$62 are used for BASIC floating point
+!set NUMERATOR = $FB     ; 2 bytes. On c64, $FB/$FC aren't used
+!set DIVISOR = $26       ; 2 bytes. On c64, $26/$27 are part of the floating point working memory for BASIC. Safe to use.
+!set REMAINDER = $28     ; 2 bytes. On c64, $28/$29 are part of the floating point working memory for BASIC. Safe to use.
+!set PHASE = $FD         ; On c64, $FD isn't used
+!set OUTPUT_BASE = $9000 ; Our output buffer for the final print operation
+!set BITWIDTH = 16       ; Number of bits in the numerator / dividend
 
 main
     ;;;;;;;;;
