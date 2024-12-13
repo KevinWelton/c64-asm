@@ -113,7 +113,7 @@ prep_next_int2txt_digit
 
 print
     ; Our printable data should now be in OUTPUT_BASE with PHASE as the number of chars
-    ldx PHASE ; CHECK: Will this ever be 0? I hope not. It shouldn't be if I read it right.
+    ldx PHASE
     ldy #0
 print_char
     cpx #0
@@ -121,10 +121,10 @@ print_char
 print_char_continue
     dex
     lda OUTPUT_BASE, x
-    clc ; Clear carry so we don't get anything accidently added to our char values
-    adc #"0"
+    clc                 ; Clear carry so we don't get anything accidently added to our char values
+    adc #"0"            ; Convert the int value to the char value
     sta $400, y
-    lda #1 ; white text
+    lda #1              ; white text
     sta $d800, y
     iny
     jmp print_char
