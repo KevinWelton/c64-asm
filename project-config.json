@@ -3,7 +3,7 @@
     "description": "Project c64-asm",
     "toolkit": "acme",
     "sources": [
-        "src/longdivision-16bit16bit-with-input.asm"
+        "src/longdivision-16bit16bit-with-staged-int2text.asm"
     ],
     "build": "debug",
     "definitions": [],
