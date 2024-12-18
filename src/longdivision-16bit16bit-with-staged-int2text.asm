@@ -5,7 +5,11 @@
 
 *=$0801
 
-!byte $0c,$08,$b5,$07,$9e,$20,$32,$30,$36,$32,$00,$00,$00
+; I deciphered what this !byte block means. It's just a BASIC command to execute
+;   starting at $080e (main). It's the text value of the chars in $080e in dec (2062)
+;     $801 $802 $803 $804 $805 $806 $807 $808 $809 $80a $80b $80c $80d
+!byte $0c, $08, $b5, $07, $9e, $20, $32, $30, $36, $32, $00, $00, $00
+;     [BASICNXT][BASELIN] [SYS][spc][2]  [0]  [6]  [2]  [EOL]
 
 ; Use zero page addressing when available since it's faster
 !set QUOTIENT = $61      ; 2 bytes. On c64, $61/$62 are used for BASIC floating point
